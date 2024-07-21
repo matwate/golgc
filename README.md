@@ -1,6 +1,6 @@
 # Logic Compiler (lgc)
 
-Logic Compiler (lgc) is a tool designed for compiling logic expressions into a form that can be executed or analyzed further. It is built in Go and leverages the power of modern compiler design to process `.lgc` files.
+Logic Compiler (lgc) is a tool designed for compiling logic expressions into a form that can be executed or analyzed further. It is built in Go and leverages the power of modern compiler design to process `.lgc` files. Specifically, it generates truth tables from these `.lgc` files, allowing for a comprehensive analysis of logic expressions.
 
 ## Getting Started
 
@@ -14,28 +14,52 @@ Clone the repository to your local machine:
 git clone https://github.com/matwate/lgc.git
 cd lgc
 ```
-Build the project:
 
-Usage
+### Build the project
+
+```sh
+go build 
+```
+
+### Usage
+
 To compile a .lgc file, simply run:
+```sh
+./lgc <path_to_file>
+```
+
 
 Make sure the file has the .lgc extension.
 
-Development
-The project is structured as follows:
+### Writing `.lgc` files
 
-main.go: Entry point of the application.
-root.go: Defines the CLI interface and the main logic for file processing.
-parser.go: Contains the logic for parsing .lgc files.
-semantic.go: Handles semantic analysis of the parsed logic expressions.
-simplify.go, Truthtable.go: Additional modules for logic simplification and truth table generation.
-Dependencies
-cobra: A library for creating powerful modern CLI applications.
-mousetrap: A library used by cobra for Windows support.
-Dependencies are managed using Go modules.
+`.lgc` files are written using a simple syntax to represent logic expressions.
 
-Contributing
+Here's an example of how to write a `.lgc` file
+
+
+```lgc
+a + b * !c  => (d <=> f )
+```
+### `.lgc` Cheatsheet
+
+`+`: Or \
+`*`: And \
+`!`: Not \
+`=>`: Implies\
+`<=>`: If and only If \
+
+
+### Next Steps
+The next feature in development for lgc is to simplify logic expressions using De Morgan's laws and equivalence checking.
+
+This will allow users to optimize their logic expressions for both readability and computational efficiency, making it easier to integrate these expressions into larger systems or analyses.
+
+
+### Contributing
+
 Contributions are welcome! Please feel free to submit a pull request.
 
-License
-This project is licensed under the MIT License - see the LICENSE file for details.
+### License
+
+This project is licensed under the MIT License - see the LICENSE file for details*.
