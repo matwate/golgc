@@ -11,8 +11,8 @@ To use lgc, you need to have Go installed on your machine. You can download and 
 Clone the repository to your local machine:
 
 ```sh
-git clone https://github.com/matwate/lgc.git
-cd lgc
+git clone https://github.com/matwate/golgc.git
+cd golgc
 ```
 
 ### Build the project
