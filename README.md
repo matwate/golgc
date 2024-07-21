@@ -27,7 +27,7 @@ To compile a .lgc file, simply run:
 ```sh
 ./lgc <path_to_file>
 ```
-
+It will print out its truth table and also write to an `.lgout` file
 
 Make sure the file has the .lgc extension.
 
@@ -62,4 +62,4 @@ Contributions are welcome! Please feel free to submit a pull request.
 
 ### License
 
-This project is licensed under the MIT License - see the LICENSE file for details*.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

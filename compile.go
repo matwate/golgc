@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 	"unicode"
 )
@@ -113,21 +114,21 @@ func CompileString(input string) {
 	parser := NewParser(lexer)
 	ast := parser.Parse()
 
-	fmt.Println("Original AST:")
-	printAST(ast, 0)
+	//fmt.Println("Original AST:")
+	//printAST(ast, 0)
 
 	analyzer := NewSemanticAnalyzer()
 	if err := analyzer.Analyze(ast); err != nil {
-		fmt.Printf("Semantic error: %v\n", err)
+		//fmt.Printf("Semantic error: %v\n", err)
 		return
 	}
 
 	variables := analyzer.GetVariables()
-	fmt.Printf("Variables: %v\n", variables)
+	//fmt.Printf("Variables: %v\n", variables)
 
 	simplifiedAST := Simplify(ast)
-	fmt.Println("\nSimplified AST:")
-	printAST(simplifiedAST, 0)
+	//fmt.Println("\nSimplified AST:")
+	//printAST(simplifiedAST, 0)
 
 	tt := GenerateTruthTable(simplifiedAST, variables)
 	fmt.Println("\nTruth Table:")
@@ -135,25 +136,42 @@ func CompileString(input string) {
 }
 
 func printTruthTable(tt *TruthTable) {
+	file, err := os.Create(".lgout")
+	if err != nil {
+		fmt.Println("Error creating file:", err)
+		return
+	}
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
 	for _, v := range tt.Variables {
 		fmt.Printf("%s\t", v)
+		fmt.Fprintf(writer, "%s\t", v)
 	}
 	fmt.Println("Result")
+	fmt.Fprintf(writer, "Result\n")
 
 	for i, row := range tt.Rows {
 		for _, v := range tt.Variables {
 			if row[v] {
 				fmt.Print("T\t")
+				fmt.Fprintf(writer, "T\t")
 			} else {
 				fmt.Print("F\t")
+				fmt.Fprintf(writer, "F\t")
 			}
 		}
 		if tt.Results[i] {
 			fmt.Println("T")
+			fmt.Fprintf(writer, "T\n")
 		} else {
 			fmt.Println("F")
+			fmt.Fprintf(writer, "F\n")
 		}
 	}
+
+	writer.Flush()
+
 }
 
 func printAST(node *ASTNode, indent int) {
