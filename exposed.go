@@ -1,4 +1,4 @@
-package main
+package golgc
 
 import "github.com/matwate/golgc/internal"
 
