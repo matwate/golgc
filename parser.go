@@ -25,12 +25,22 @@ type Parser struct {
 	currentToken Token
 }
 
+// NewParser creates a new instance of the Parser struct.
+//
+// It takes a pointer to a Lexer struct as a parameter and returns a pointer to a Parser struct.
+// The function initializes a new Parser struct with the provided lexer and calls the nextToken method to
+// advance the lexer to the next token.
+// The function then returns the initialized Parser struct.
 func NewParser(lexer *Lexer) *Parser {
 	p := &Parser{lexer: lexer}
 	p.nextToken()
 	return p
 }
 
+// nextToken advances the parser to the next token.
+//
+// It calls the NextToken method of the lexer to get the next token and updates the currentToken field of the parser.
+// If there is an error while getting the next token, it prints an error message.
 func (p *Parser) nextToken() {
 	var err error
 	p.currentToken, err = p.lexer.NextToken()

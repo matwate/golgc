@@ -33,10 +33,28 @@ type Lexer struct {
 	reader *bufio.Reader
 }
 
+// NewLexer creates a new instance of the Lexer struct.
+//
+// It takes a string input as a parameter and returns a pointer to a Lexer struct.
 func NewLexer(input string) *Lexer {
 	return &Lexer{bufio.NewReader(strings.NewReader(input))}
 }
 
+// NextToken returns the next token from the input stream.
+//
+// It reads runes from the lexer's reader and returns a Token struct and an error.
+// If the end of the input stream is reached, it returns a Token with TokenType Token_EOF and an empty string.
+// If an error occurs while reading the input stream, it returns an empty Token and the error.
+// If the rune is a space, it continues to the next rune.
+// If the rune is a letter or a digit, it unreads the rune and returns the result of calling lexVariable().
+// If the rune is '*', it returns a Token with TokenType Token_AND and the string representation of the rune.
+// If the rune is '+', it returns a Token with TokenType Token_OR and the string representation of the rune.
+// If the rune is '!', it returns a Token with TokenType Token_NOT and the string representation of the rune.
+// If the rune is '=', it checks if the next rune is '>'. If it is, it reads the next rune and returns a Token with TokenType Token_IMPLIES and the string "=>".
+// If the rune is '(', it returns a Token with TokenType Token_LEFT_PAREN and the string representation of the rune.
+// If the rune is ')', it returns a Token with TokenType Token_RIGHT_PAREN and the string representation of the rune.
+// If the rune is '<', it checks if the next two runes are '=' and '>'. If they are, it reads the next rune and returns a Token with TokenType Token_IFF and the string "<=>".
+// If none of the above conditions are met, it returns an empty Token and an error indicating an unexpected character.
 func (l *Lexer) NextToken() (Token, error) {
 	for {
 		r, _, err := l.reader.ReadRune()
@@ -50,7 +68,7 @@ func (l *Lexer) NextToken() (Token, error) {
 		switch {
 		case unicode.IsSpace(r):
 			continue
-		case unicode.IsLetter(r):
+		case unicode.IsLetter(r) || unicode.IsDigit(r):
 			l.reader.UnreadRune()
 			return l.lexVariable()
 		case r == '*':
@@ -82,6 +100,19 @@ func (l *Lexer) NextToken() (Token, error) {
 	}
 }
 
+// lexVariable scans the input for a variable name and returns a Token representing the variable.
+//
+// It reads runes from the input until it encounters a non-letter or non-digit character. It then
+// unreads the last character and returns a Token with the type Token_VAR and the scanned variable
+// name as the value. If an error occurs while reading the input, it returns an empty Token and the
+// error.
+//
+// Parameters:
+// - l: A pointer to a Lexer struct representing the lexer.
+//
+// Returns:
+// - Token: A Token representing the variable.
+// - error: An error if an error occurred while reading the input.
 func (l *Lexer) lexVariable() (Token, error) {
 	var sb strings.Builder
 	for {
@@ -92,7 +123,7 @@ func (l *Lexer) lexVariable() (Token, error) {
 			}
 			return Token{}, err
 		}
-		if !unicode.IsLetter(r) {
+		if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
 			l.reader.UnreadRune()
 			break
 		}
@@ -108,7 +139,7 @@ func (l *Lexer) peek() rune {
 	return r
 }
 
-func CompileString(input string) {
+func CompileString(input string, trueOnly bool) {
 
 	lexer := NewLexer(input)
 	parser := NewParser(lexer)
@@ -132,7 +163,16 @@ func CompileString(input string) {
 
 	tt := GenerateTruthTable(simplifiedAST, variables)
 	fmt.Println("\nTruth Table:")
-	printTruthTable(tt)
+
+	conns := CountConns(simplifiedAST)
+
+	if !trueOnly {
+		printTruthTable(tt)
+	} else {
+		printTruthTableTrueOnly(tt)
+	}
+
+	printConns(conns)
 }
 
 func printTruthTable(tt *TruthTable) {
@@ -174,6 +214,48 @@ func printTruthTable(tt *TruthTable) {
 
 }
 
+func printTruthTableTrueOnly(tt *TruthTable) {
+	file, err := os.Create(".lgout")
+	if err != nil {
+		fmt.Println("Error creating file:", err)
+		return
+	}
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
+	for _, v := range tt.Variables {
+		fmt.Printf("%s\t", v)
+		fmt.Fprintf(writer, "%s\t", v)
+	}
+	fmt.Println("Result")
+	fmt.Fprintf(writer, "Result\n")
+
+	for i, row := range tt.Rows {
+		if !tt.Results[i] {
+			continue
+		}
+		for _, v := range tt.Variables {
+			if row[v] {
+				fmt.Print("T\t")
+				fmt.Fprintf(writer, "T\t")
+			} else {
+				fmt.Print("F\t")
+				fmt.Fprintf(writer, "F\t")
+			}
+		}
+		if tt.Results[i] {
+			fmt.Println("T")
+			fmt.Fprintf(writer, "T\n")
+		} else {
+			fmt.Println("F")
+			fmt.Fprintf(writer, "F\n")
+		}
+	}
+
+	writer.Flush()
+
+}
+
 func printAST(node *ASTNode, indent int) {
 	if node == nil {
 		return
@@ -181,4 +263,21 @@ func printAST(node *ASTNode, indent int) {
 	fmt.Printf("%s%v: %s\n", strings.Repeat("  ", indent), node.Type, node.Value)
 	printAST(node.Left, indent+1)
 	printAST(node.Right, indent+1)
+}
+
+func printConns(conns int) {
+
+	file, err := os.Open(".lgout")
+	if err != nil {
+		fmt.Println("Error creating file:", err)
+		return
+	}
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
+
+	fmt.Println("Connections: ", conns)
+	fmt.Fprintf(writer, "Connections: %d\n", conns)
+
+	writer.Flush()
 }

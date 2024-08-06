@@ -13,6 +13,7 @@ var rootCmd = &cobra.Command{
 	Long:  `golgc is a logic compiler`,
 	Run: func(cmd *cobra.Command, args []string) {
 
+		trueOnly, _ := cmd.Flags().GetBool("true-only")
 		// Validate is an lgc file
 		if len(args) != 1 {
 			fmt.Println("Usage: lgc <file.lgc>")
@@ -41,7 +42,7 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
-		CompileString(string(bs))
+		CompileString(string(bs), trueOnly)
 	},
 }
 
@@ -50,4 +51,8 @@ func Execute() {
 	if err != nil {
 		os.Exit(1)
 	}
+}
+
+func init() {
+	rootCmd.PersistentFlags().Bool("true-only", false, "Makes the compiler only return the true statements ")
 }
