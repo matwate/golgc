@@ -1,6 +1,6 @@
 package main
 
-import "github.com/matwate/lgc/internal"
+import "github.com/matwate/golgc/internal"
 
 func main() {
 	internal.Execute()

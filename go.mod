@@ -1,4 +1,4 @@
-module github.com/matwate/lgc
+module github.com/matwate/golgc
 
 go 1.22.0
 
