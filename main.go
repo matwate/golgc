@@ -1,5 +1,7 @@
 package main
 
+import "github.com/matwate/lgc/internal"
+
 func main() {
-	Execute()
+	internal.Execute()
 }
