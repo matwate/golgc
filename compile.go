@@ -267,7 +267,7 @@ func printAST(node *ASTNode, indent int) {
 
 func printConns(conns int) {
 
-	file, err := os.Open(".lgout")
+	file, err := os.OpenFile(".lgout", os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Println("Error creating file:", err)
 		return
